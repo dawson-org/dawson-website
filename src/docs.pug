@@ -1,0 +1,18 @@
+extends _layout
+
+block body
+  nav
+    .spacer-10
+    .container
+      .pure-g
+        .pure-1
+          a(href='index.html')
+            img(src='img/dawson-logo@2x.png' alt='dawson | a serverless framework for Node.js on AWS')
+    .spacer-10
+
+  #readme
+    .container
+      .padding
+        include:markdown-it(breaks=true linkify=true plugins=['markdown-it-anchor']) README.md
+
+    .spacer-50

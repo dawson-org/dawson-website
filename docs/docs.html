@@ -1,0 +1,612 @@
+<!DOCTYPE html><html><head><title>dawson | a serverless framework for Node.js on AWS</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta name="keywords" content=""><meta name="author" content=""><meta name="description" content=""><meta property="og:title" content=""><meta property="og:url" content=""><meta property="og:description" content=""><meta property="og:image" content=""><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="/css/style.min.css?v=1487171272392"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/dracula.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/javascript.min.js"></script><script>hljs.initHighlightingOnLoad();
+</script><meta name="msapplication-TileColor" content="#584843"><meta name="msapplication-TileImage" content="img/mstile-icon.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" href="/img/favicon.png" type="image/png"></head><body><nav><div class="spacer-10"></div><div class="container"><div class="pure-g"><div class="pure-1"><a href="index.html"><img src="img/dawson-logo@2x.png" alt="dawson | a serverless framework for Node.js on AWS"></a></div></div></div><div class="spacer-10"></div></nav><div id="readme"><div class="container"><div class="padding"><h1 id="dawson-documentation">dawson documentation</h1>
+<p>dawson is a <a href="https://auth0.com/blog/what-is-serverless/">serverless</a> web framework for Node.js on AWS. dawson uses <a href="https://aws.amazon.com/cloudformation/">AWS CloudFormation</a>, <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a>, <a href="https://aws.amazon.com/apigateway/">Amazon API Gateway</a> and  <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> to deploy the backend code and to manage the infrastructure for you.</p>
+<h3 id="is-dawson-for-me">Is dawson for me?</h3>
+<p>👍🏽 I'm building a single-page app/website with a backend<br>
+👍🏽 I'm building an API<br>
+👍🏽 I'm building a server-rendered app/website</p>
+<p>The main goal of dawson is to be a zero-configuration yet fully extensible <em>[backend]</em> web framework for building web apps on AWS. You should be able to start using dawson without creating any configuration file and with only a basic knowledge of Amazon Web Services.</p>
+<h4 id="tldr-show-me-the-code">tl;dr show me the code!</h4>
+<pre><code class="language-js">// api.js
+export function greet (event) {
+    const name = event.params.path.name
+    return `Hello ${name}, you look awesome!`
+}
+greet.api = {
+    path: 'greet/{name}'
+}
+</code></pre>
+<pre><code class="language-bash">$ # 🛑 we strongly recommend to read this guide 🛑
+$ # 🛑     before getting your hands dirty      🛑
+$ npm install -g dawson
+$ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
+$ dawson deploy
+</code></pre>
+<h1 id="table-of-contents">Table of Contents</h1>
+<p>&lt;!-- toc --&gt;</p>
+<ul>
+<li><a href="#0-working-with-aws">0. Working with AWS</a>
+<ul>
+<li><a href="#01-obtaining-aws-credentials-short-version">0.1 obtaining AWS Credentials: short version</a></li>
+<li><a href="#02-obtaining-aws-credentials-long-version-for-aws-beginners">0.2 obtaining AWS Credentials: long version for AWS beginners</a></li>
+</ul>
+</li>
+<li><a href="#1-getting-to-know-dawson">1. Getting to know dawson</a>
+<ul>
+<li><a href="#11-installing">1.1 installing</a></li>
+<li><a href="#12-packagejson-and-entry-point">1.2 package.json and entry point</a></li>
+<li><a href="#13-the-dawson-cli">1.3 the dawson CLI</a></li>
+<li><a href="#14-templates-under-the-hood">1.4 templates, <em>under the hood</em></a></li>
+<li><a href="#15-working-with-stages">1.5 working with <em>stage</em>s</a></li>
+<li><a href="#16-deployment-speed">1.6 deployment speed</a></li>
+</ul>
+</li>
+<li><a href="#2-working-with-functions">2. Working with functions</a></li>
+<li><a href="#3-function-programming-model">3. Function programming model</a>
+<ul>
+<li><a href="#31-parameters">3.1 Parameters</a>
+<ul>
+<li><a href="#311-accessing-template-outputs-and-custom-resources">3.1.1 Accessing Template Outputs and Custom Resources</a></li>
+<li><a href="#312-supported-http-request-headers">3.1.2 Supported HTTP request headers</a></li>
+</ul>
+</li>
+<li><a href="#32-returning-a-value">3.2 Returning a value</a>
+<ul>
+<li><a href="#321-returning-an-http-redirect">3.2.1 Returning an HTTP redirect</a></li>
+<li><a href="#322-returning-an-error-response">3.2.2 Returning an error response</a></li>
+</ul>
+</li>
+<li><a href="#33-example-functions">3.3 Example functions</a></li>
+</ul>
+</li>
+<li><a href="#4-function-configuration">4. Function configuration</a>
+<ul>
+<li><a href="#path"><code>path</code></a></li>
+<li><a href="#method"><code>method</code></a></li>
+<li><a href="#responsecontenttype"><code>responseContentType</code></a></li>
+<li><a href="#authorizer"><code>authorizer</code></a></li>
+<li><a href="#policystatements"><code>policyStatements</code></a></li>
+<li><a href="#redirects"><code>redirects</code></a></li>
+</ul>
+</li>
+<li><a href="#5-application-configuration">5. Application configuration</a>
+<ul>
+<li><a href="#pre-deploy"><code>pre-deploy</code></a></li>
+<li><a href="#post-deploy"><code>post-deploy</code></a></li>
+<li><a href="#ignore"><code>ignore</code></a></li>
+<li><a href="#cloudfrontrootorigin"><code>cloudfrontRootOrigin</code></a></li>
+<li><a href="#route53"><code>route53</code></a></li>
+<li><a href="#cloudfront"><code>cloudfront</code></a></li>
+<li><a href="#51-ssltls-certificates">5.1 SSL/TLS Certificates</a></li>
+</ul>
+</li>
+<li><a href="#6-working-with-the-template">6. Working with the Template</a>
+<ul>
+<li><a href="#61-adding-custom-resources">6.1 Adding custom resources</a></li>
+<li><a href="#62-modifying-dawson-managed-resources">6.2 Modifying dawson-managed resources</a></li>
+</ul>
+</li>
+<li><a href="#7-working-with-the-development-server">7. Working with the Development Server</a></li>
+</ul>
+<p>&lt;!-- tocstop --&gt;</p>
+<h1 id="0-working-with-aws">0. Working with AWS</h1>
+<p>dawson requires Amazon Web Services credentials to operate. dawson needs the following environment variables:</p>
+<ul>
+<li>either <code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code> and <code>AWS_REGION</code></li>
+<li>or <code>AWS_PROFILE</code> (with <code>AWS_REGION</code> if you're not using the profile's default region)</li>
+</ul>
+<blockquote>
+<p><strong>These credentials will be only used by dawson to create/update the CloudFormation Stack and to call sts.AssumeRole when using the <em>Development Server</em>. None of your app code will run with these credentials.</strong></p>
+</blockquote>
+<p>As a safety measure, dawson uses a mechanism to prevent accidental deletion or replacement of <em>some</em> resources, which could result in data loss, DNS changes etc, unless the --danger-delete-resources CLI option is specified. Trying to perform some operations, such as deleting S3 Buckets, REST APIs, DynamoDB Tables, CloudFront Distributions will result in an error unless this flag is specified</p>
+<h2 id="01-obtaining-aws-credentials-short-version">0.1 obtaining AWS Credentials: short version</h2>
+<p>Create an IAM user with <code>AdministratorAccess</code> permissions (be sure to create an Access Key), then create a profile with the given credentials (or export them as <code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code> and <code>AWS_REGION</code>).</p>
+<blockquote>
+<p>Since we use the <code>aws-sdk-js</code>, any other method of setting credentials should work and can be used (e.g. EC2 Instance Role).</p>
+</blockquote>
+<h2 id="02-obtaining-aws-credentials-long-version-for-aws-beginners">0.2 obtaining AWS Credentials: long version for AWS beginners</h2>
+<ol>
+<li>create an Amazon Web Services Account or login into an existing account</li>
+<li>from the top menu, choose Services and find <em>Identity &amp; Access Management</em> (short: IAM)</li>
+<li>choose Users from the left menu and click on Add User</li>
+<li>enter an username (for example: <em>my-dawson-project</em>) and check the &quot;Programmatic access&quot; box. Click next.</li>
+<li>click on &quot;Attach existing policies directly&quot; and search for a Policy named &quot;AdministratorAccess&quot;, click next and confirm</li>
+<li>the confirmation page will show a table with the credentials; you must write down the values of &quot;Access key ID&quot; (which usually starts with <code>AKIA</code>) and &quot;Secret access key&quot;. Keep in mind that the value for Secret access key won't be shown again after you leave this page</li>
+<li>find an AWS Region in which you want to work; there's no default Region set. You may use <code>us-east-1</code> if you're located in the US or <code>eu-west-1</code> if you're located in EU. You need to choose a region in which AWS Lambda and Amazon API Gateway are supported, for more info check out the <a href="https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/">AWS Region Table</a>.</li>
+<li>from a terminal window your PC, which you'll use to run the dawson command, you may run:</li>
+</ol>
+<pre><code class="language-bash">export AWS_ACCESS_KEY_ID=...
+export SECRET_ACCESS_KEY=...
+export AWS_REGION=...
+</code></pre>
+<blockquote>
+<p>You can find more information about AWS IAM Credentials here: <a href="https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys">https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys</a></p>
+</blockquote>
+<blockquote>
+<p>There are many other ways to set AWS Credentials on your PC, you may refer here for more info: <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html">https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html</a></p>
+</blockquote>
+<hr>
+<h1 id="1-getting-to-know-dawson">1. Getting to know dawson</h1>
+<p>You write your app's code and then dawson takes care of building, packing, uploading the code to AWS and of creating the AWS infrastructure that your application needs to run.</p>
+<h2 id="11-installing">1.1 installing</h2>
+<p>you should install dawson using npm or yarn: <code>npm install -g dawson</code> or <code>yarn global add dawson</code>. You should then be able to run a <code>dawson --help</code> command.<br>
+You're kindly invited to keep dawson up-to-date, starting with <code>v1.0.0</code> we will never introduce backwards-incompatible changes between non-major versions, following strict <a href="http://semver.org">SemVer</a>.</p>
+<h2 id="12-packagejson-and-entry-point">1.2 package.json and entry point</h2>
+<p>dawson reads the contents of a file named <code>api.js</code> in your current working directory. You should write (or just <code>export</code>) your functions in this <code>api.js</code> file.<br>
+dawson uses the <code>name</code> field in the <code>package.json</code> file in your current working directory to determine the app name, which will be used as a prefix for many AWS Resources that are created automatically. Make sure you have correctly set the <code>name</code> field it's <em>not possible to change</em> it later.</p>
+<h2 id="13-the-dawson-cli">1.3 the dawson CLI</h2>
+<p>dawson ships a few commands that you should use to manage your application, here's a brief overview. Up-to-date reference for commands and arguments may be accessed using <code>$ dawson --help</code>.</p>
+<p><code>$ dawson deploy</code> creates or updates the whole infrastructure and deploys your application<br>
+<code>$ dawson log -t -f &lt;function&gt;</code> pulls function's logs from AWS in real time<br>
+<code>$ dawson describe</code> list all of the Resources that have been deployed<br>
+<code>$ dawson dev</code> starts a <strong>development server</strong></p>
+<h2 id="14-templates-under-the-hood">1.4 templates, <em>under the hood</em></h2>
+<p>When you run the <code>$ dawson deploy</code> command, dawson reads your file's contents and constructs a (<em>JSON</em>) description of the AWS infrastructure that needs to be created (functions, API endpoints, etc...). Such description is called <strong>Template</strong>. The Template is then uploaded to AWS, which performs the actual deploy. AWS takes care of creating resources, calculating changes and to perform the actual deployment.</p>
+<p><strong>The description will contain the following Resources:</strong></p>
+<ul>
+<li>each Function, defined as an <a href="https://aws.amazon.com/lambda/faqs/">AWS Lambda Function</a></li>
+<li>an <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-step-by-step.html">API Gateway HTTP Endpoint</a>, linked to each function (if a <code>path</code> is set)</li>
+<li>one <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html">S3 Bucket</a> is created and your static assets (html, css, js,...) are uploaded there; dawson calls it <code>BucketAssets</code></li>
+<li>a <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html">CloudFront Distribution</a> (<em>like a CDN</em>) is created and is configured to serve the static assets from S3 and the API Endpoints from API Gateway; dawson calls it <code>WWWDistribution</code></li>
+<li><em>other support resources</em></li>
+</ul>
+<p><em>Reference architecture:</em><br>
+<img src="https://rawgit.com/dawson-org/dawson-cli/images/architecture.png" alt=""></p>
+<blockquote>
+<p>You can add more Resources as you need and fully customize even Resources that are managed by dawson.<br>
+Internally, dawson is building and deploying <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-guide.html">CloudFormation Stack</a>.</p>
+</blockquote>
+<h2 id="15-working-with-stages">1.5 working with <em>stage</em>s</h2>
+<p>You may want to have more than one deployment for your app, for example you might want to create separate <em>development</em> and <em>production</em> deployments: you can use the <code>--stage</code> parameter when running dawson (or set a <code>DAWSON_STAGE</code> environment variable) to tell dawson which stage to operate on. By default, dawson uses a stage named <code>&quot;default&quot;</code>.<br>
+Stages are completely isolated one to each other and they may also have different configurations, including different domain names.</p>
+<h2 id="16-deployment-speed">1.6 deployment speed</h2>
+<p>The <em>first deployment</em> will be very slow because many resources needs to be created (including a CloudFront distribution) and it will take anything between <em>15 to 45 minutes</em>. You can safely kill (Ctrl-C) the dawson command once it says &quot;waiting for stack update to complete&quot;.<br>
+Subsequent deploys will <em>usually take around 2-5 minutes</em> or more, depending on which Resources need to be created and updated.</p>
+<hr>
+<h1 id="2-working-with-functions">2. Working with functions</h1>
+<p><strong>dawson deploys functions to the cloud and optionally makes them available via HTTP(S).</strong><br>
+If this statement looks weird to you, you may want to check out the following beginners-friendly articles:</p>
+<ul>
+<li><a href="https://www.quora.com/What-are-serverless-app">https://www.quora.com/What-are-serverless-app</a> (short)</li>
+<li><a href="https://martinfowler.com/articles/serverless.html">https://martinfowler.com/articles/serverless.html</a> (long)</li>
+<li><a href="https://aws.amazon.com/lambda/serverless-architectures-learn-more/">https://aws.amazon.com/lambda/serverless-architectures-learn-more/</a> (PDF)</li>
+<li><a href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-introduction.html">https://docs.aws.amazon.com/lambda/latest/dg/lambda-introduction.html</a> and <a href="https://aws.amazon.com/api-gateway/details/">https://aws.amazon.com/api-gateway/details/</a> (suggested readings)</li>
+</ul>
+<p><strong>Usually, a Function, in dawson's terms, is an handler for an HTTP request <em>(much like a route in a koa/express app)</em>, which takes incoming parameters (such as HTTP Body, Querystring, etc) and returns an output to be displayed in a browser.</strong></p>
+<p>You should place all of your functions in a file named <code>api.js</code> (or you might define them elsewhere and just <code>export</code>). The <code>api.js</code> file will be parsed and automatically transpiled using <code>babel</code> so you can use any JavaScript language feature that's supported by <a href="https://github.com/babel/babel-preset-env"><code>babel-preset-env</code></a>, including ES6 Modules, ES7 <code>Array.prototype.includes</code> etc.</p>
+<p>Each function in the <code>api.js</code> file <strong>must</strong> have an <code>api</code> property, which tells dawson some information about your function's behaviour; more on this in the <em>Configuring functions</em> chapter.</p>
+<p>All the lines logged by your functions (via <code>console.log</code>, <code>console.error</code>, <code>process.stdout.write</code> etc...) will be automatically delivered to <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html">Amazon CloudWatch Logs</a>, a persistent and searchable Log Storage. Logs can be later fetched or streamed using <code>$ dawson logs</code>.</p>
+<p><strong>Function example: returning an HTML page</strong></p>
+<pre><code class="language-js">// an helloWorld function will be created which, when invoked,
+// will return an HTML string
+export function helloWorld (event) {
+    console.log('this function was called with this parameter:', event);
+    return `
+        &lt;html&gt;
+            &lt;body&gt;
+                &lt;h1&gt;hello world&lt;/h1&gt;
+            &lt;/body&gt;
+        &lt;/html&gt;
+    `;
+}
+helloWorld.api = {
+    path: 'hello', // the HTTP path to attach this function to
+    method: 'GET'  // &amp; the HTTP method
+};
+</code></pre>
+<p><strong>Function example: returning a JSON Object</strong></p>
+<pre><code class="language-js">// an helloWorld function will be created which, when invoked,
+// will return a JSON string. The returned object will be automatically
+// serialized using JSON.stringify(...)
+export function helloWorld (event) {
+    console.log('this function was called with this parameter:', event);
+    return { hello: 'world' };
+}
+helloWorld.api = {
+    path: 'hello', // the HTTP path to attach this function to
+    method: 'GET', // &amp; the HTTP method (defaults to GET)
+    responseContentType: 'application/json'
+                   // &amp; the Content-type (defaults to 'text/html')
+};
+</code></pre>
+<hr>
+<h1 id="3-function-programming-model">3. Function programming model</h1>
+<h2 id="31-parameters">3.1 Parameters</h2>
+<p>Given a generic function definition:</p>
+<pre><code class="language-js">function helloWorld (event, context) { /* ... */ }
+helloWorld.api = {
+    path: 'xyz'
+};
+</code></pre>
+<p>If <code>api.path === false</code>, the <code>event</code> parameter will be exactly the event Object that the Lambda receives from other AWS services. Typically, you set <code>path: false</code> when this Function is used as an AWS Event handler (for processing events from DynamoDB Streams, Kinesis Streams, S3 Events, CloudWatch Events, etc.); in this case, no HTTP Endpoint will be created.</p>
+<p>If <code>api.path !== false</code>, the Function expects to be called via an HTTP Request and the <code>event</code> parameter will be an Object with the following properties:</p>
+<pre><code class="language-js">{
+  &quot;params&quot;: {
+    &quot;querystring&quot;: {}, // parameters from the querystring
+    &quot;path&quot;: {}, // path parmeters, captured by `{}` in function `path`s
+    &quot;header&quot;: {} // some HTTP headers from the client, see below
+  },
+   // body: the request body (useful only for POST and PUT requests)
+   //  currently, only application/json and application/www-form-urlencoded bodies will be parsed
+  &quot;body&quot;: Object | string,
+  &quot;meta&quot;: {
+    // expectedResponseContentType: the content-type that is expected to be returned
+    //  by the function. This is used internally to wrap the returned value
+    //  for the API Gateway Method Response.
+    &quot;expectedResponseContentType&quot;: &quot;the value from api.responseContentType property&quot;
+  },
+  &quot;stageVariables&quot; : {
+    // API Gateway's Stage Variables if you set any of them,
+    // empty by default
+  }
+}
+</code></pre>
+<p>The second parameter, <code>context</code>, is <a href="https://docs.aws.amazon.com/lambda/latest/dg/programming-model-v2.html">Lambda's Context</a>. You should rarely need to access this property. <strong>Do not call</strong> <s><code>context.done</code></s>, <s><code>context.fail</code></s> or <s><code>context.succeed</code></s>.</p>
+<h3 id="311-accessing-template-outputs-and-custom-resources">3.1.1 Accessing Template Outputs and Custom Resources</h3>
+<p>Additionally, every function has access to a <code>process.env</code> Object.<br>
+dawson sets the following properties:</p>
+<ul>
+<li><strong><code>NODE_ENV</code></strong> will match the value of <code>process.env.NODE_ENV</code> that was set when executing <code>$ dawson deploy</code></li>
+<li><strong><code>DAWSON_BucketAssets</code></strong> the Physical Resource Name of the S3 Bucket that contains the static assets</li>
+<li><strong><code>DAWSON_WWWDistribution</code></strong> the CNAME (DNS name) of the CloudFront Distribution</li>
+<li>each of the Template Outputs, including custom Outputs, as <code>DAWSON_&lt;OutputName&gt;</code>. For Example, a custom Output named <code>FooBar</code>, will be available from your Functions as <code>process.env.DAWSON_FooBar</code> (Output Name's CaSe is preserved).</li>
+</ul>
+<p>See Chapter 6 for details about referencing Custom Resources.</p>
+<h3 id="312-supported-http-request-headers">3.1.2 Supported HTTP request headers</h3>
+<p>By default only these HTTP Request Headers are  <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/forward-custom-headers.html">forwarded</a>:</p>
+<ul>
+<li><code>Authorization</code></li>
+<li><code>Accept</code></li>
+<li><code>Content-Type</code></li>
+<li><code>Origin</code></li>
+<li><code>Referer</code></li>
+<li><code>Access-Control-Request-Headers</code></li>
+<li><code>Access-Control-Request-Method</code></li>
+</ul>
+<p>You may add or modify whitelisted headers, see the &quot;Working with templates&quot; chapter.</p>
+<blockquote>
+<p>Internally, <code>dawson</code> uses a <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html">Passthrough Parameter-Mapping Template</a> to forward request parameters, headers and body to your function.</p>
+</blockquote>
+<h2 id="32-returning-a-value">3.2 Returning a value</h2>
+<p>A function can return:</p>
+<ul>
+<li>a <code>string</code>, which will be returned as-is as the HTTP response;</li>
+<li>an <code>Object</code>, which will be JSON.stringified and returned as the HTTP response (note that returning an object makes sense only if <code>api.responseContentType === &quot;application/json&quot;</code>);</li>
+<li>a <code>Promise</code>, which fulfills with any of the previous types;<br>
+<strong>you can also declare your function as <code>async</code> and use <code>await</code> in it!</strong></li>
+</ul>
+<p>Currently, functions can not modify HTTP Response Headers.</p>
+<h3 id="321-returning-an-http-redirect">3.2.1 Returning an HTTP redirect</h3>
+<p>To respond with an HTTP Redirect (with an HTTP Status equal to <code>307 Temporary Redirect</code>), you must return an Object with a <code>Location</code> property. Additionally, the <code>api.redirects</code> configuration property must also be set to <code>true</code>.</p>
+<pre><code class="language-js">function myRoute () {
+    // your logic, including await etc...
+    return { Location: 'http://www.google.com' };
+}
+myRoute.api = {
+    redirects: true
+};
+</code></pre>
+<blockquote>
+<p>Due to limitations in API Gateway, you cannot return any payload and you cannot mix redirecting and non-redirecting responses.</p>
+</blockquote>
+<h3 id="322-returning-an-error-response">3.2.2 Returning an error response</h3>
+<p>When a function fails and an error occurs, you can throw an <code>Error</code> or return a rejecting <code>Promise</code>.<br>
+dawson hides all uncaught Errors and will not leak any information about it. The Client (either a browser or any other HTTP agent) will receive a generic <code>HTTP 500 Internal Server Error</code>.</p>
+<p>You may obviously want to return expected (i.e. <em>Handled</em>) errors to the client, instead.<br>
+dawson supports custom error responses, using the following model:</p>
+<p>Instead of<br>
+<s><code>throw new Error('I wanted to throw a 403 error')</code></s> you should write:</p>
+<pre><code class="language-js">throw new Error(JSON.stringify({
+  httpStatus: 403, // int
+  response: 'I am throwing a 403 error' // string
+}));
+// Note that the Error constructor accepts just a String as first argument,
+// so you need to use JSON.stringify.
+</code></pre>
+<p>When returning an Error like such, the specified <code>httpStatus</code> HTTP Status Code will be set on the Response and:</p>
+<ul>
+<li>if <code>responseContentType === &quot;application/json&quot;</code>, the whole error payload is JSON.stringified and returned as the HTTP response</li>
+<li>in all other cases, the <code>response</code> property is returned as the HTTP response</li>
+</ul>
+<p>Currently, dawson supports the following httpStatus codes: <code>400</code>, <code>403</code>, <code>404</code>, <code>500</code> (using other Status Codes will result in an API Gateway Internal Error).</p>
+<h2 id="33-example-functions">3.3 Example functions</h2>
+<pre><code class="language-js">// 3.3.1 a basic function
+export function index (params) {
+  console.log('Called with', params)
+  return `&lt;html&gt;&lt;body&gt;&lt;marquee&gt;I love Marquees&lt;/marquee&gt;&lt;/body&gt;&lt;/html&gt;`
+}
+index.api = {
+  path: ''
+}
+</code></pre>
+<pre><code class="language-js">// 3.3.2 a basic function returning a JSON Object
+export function fetchMe (params) {
+  return {
+    my: 'data'
+  }
+}
+fetchMe.api = {
+  path: 'fetchMyJSON',
+  responseContentType: 'application/json'
+}
+</code></pre>
+<pre><code class="language-js">// 3.3.3 a function returning a Promise
+export function fetchAsync (params) {
+  return new Promise((resolve, reject) =&gt; {
+    // ...
+    resolve('&lt;html&gt;&lt;body&gt;&lt;center&gt;Bar Baz&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;')
+  })
+}
+fetchAsync.api = {
+  path: 'fetchSomething'
+}
+</code></pre>
+<pre><code class="language-js">// 3.3.4 a more complex function which uses async/await
+// (api properties are explained in the next chapter)
+export async function listProjects(event) {
+  const tableName = process.env.DAWSON_TableMyProjects;
+  const response = await dynamodb.scan({
+    TableName: tableName
+  }).promise();
+  return {
+    projects: response.Items
+  };
+}
+listProjects.api = {
+  path: 'projects',
+  responseContentType: 'application/json',
+  policyStatements: [{
+    Effect: &quot;Allow&quot;,
+    Action: [&quot;dynamodb:Scan&quot;],
+    Resource: { 'Fn::GetAtt': ['TableMyProjects', 'Arn'] }
+  }]
+};
+</code></pre>
+<pre><code class="language-js">// 3.3.5 a basic event handler
+export function index (params) {
+  console.log('Called with', params)
+  return;
+}
+index.api = {
+  path: false // no HTTP endpoint will be deployed
+}
+</code></pre>
+<hr>
+<h1 id="4-function-configuration">4. Function configuration</h1>
+<p>Each function exported by the <code>api.js</code> file <strong>must</strong> have an <code>api</code> property.<br>
+The <code>api</code> property is used to configure the function behaviour, as described below:</p>
+<pre><code class="language-js">export function foo () { /* ... */ }
+foo.api = {
+  path: 'message/{messageId}', // required!
+  authorizer: myAuthorizerFunction,
+  method: 'GET',
+  policyStatements: [{
+    Effect: 'Allow',
+    Action: ['dynamodb:Query', 'dynamodb:GetItem'],
+    Resource: [{ 'Fn::Sub': 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UsersTable}*' }]
+  }],
+  redirects: false,
+  responseContentType: 'text/html',
+};
+</code></pre>
+<h2 id=""><code>path</code></h2>
+<p><strong>Required</strong>: yes | <strong>Type</strong>: <code>string</code>|<code>boolean</code><br>
+<strong>Use for</strong>: Specifying an HTTP path</p>
+<p>The HTTP path to this function, <em>without</em> leading and trailing slashes.<br>
+The path must be unique in your whole app. You may use path parameters placeholder, as in API Gateway, by sorrounding the parameter name with <code>{}</code>).<br>
+If <code>false</code>, no API Gateway method will be deployed (see <a href="./Function-Parameters">Function Parameters</a> for details).</p>
+<blockquote>
+<p>Due to an API Gateway limitation, <code>/hello/{name}.html</code> is <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/getting-started-mappings.html"><strong>invalid</strong></a>. <code>/hello/{name}/profile.html</code> and <code>/{foo}/bar/{baz}</code> are valid (technically, &quot;<em>each path part must not contain curly braces, or must both begin and end with a curly brace</em>&quot;).</p>
+</blockquote>
+<h2 id="-2"><code>method</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>string</code> | <strong>Default</strong>: <code>&quot;GET&quot;</code><br>
+<strong>Use for</strong>: Specifying an HTTP Method</p>
+<h2 id="-3"><code>responseContentType</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>string</code> | <strong>Default</strong>: <code>&quot;text/html&quot;</code><br>
+<strong>Use for</strong>: Specifying a value for the <code>Content-type</code> HTTP Response Header</p>
+<p>The <code>Content-type</code> header to set in the HTTP Response. Valid values includes: <code>application/json</code>, <code>text/html</code>, <code>text/plain</code>, etc. When <code>application/json</code> is specified, you should return a JSON-serializable object, JSON.stringify will be called automatically. Custom values are also allowed. Binary data might be corrupted (until AWS Api Gateway will support setting Binary Responses via CloudFormation).</p>
+<h2 id="-4"><code>authorizer</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>function</code> | <strong>Default</strong>: <code>undefined</code><br>
+<strong>Use for</strong>: Specifying an API Gateway Custom Authorizer to attach to this function</p>
+<p>A function to use as <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/use-custom-authorizer.html">API Gateway Custom Authorizer</a> for this endpoint. The authorizer function must be exported from <code>api.js</code> as well and its <code>path</code> property must be set to <code>false</code>. Function's signature and return values matches the ones defined in the <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/use-custom-authorizer.html">related  documentation on AWS</a>.</p>
+<h2 id="-5"><code>policyStatements</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>list of maps</code> | <strong>Default</strong>: <code>[]</code><br>
+<strong>Use for</strong>: Specifying AWS permissions for this function</p>
+<p>When accessing resources on AWS (e.g. upload something to an S3 Bucket, insert or query a DynamoDB Table etc...), your functions need the permission to perform such operation. These permissions are granted using AWS Identity &amp; Access Management (AWS IAM) Role Policies. More info:</p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html">https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies.html</a></li>
+<li><a href="https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#genref-arns">https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#genref-arns</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-arn-format.html">https://docs.aws.amazon.com/AmazonS3/latest/dev/s3-arn-format.html</a></li>
+</ul>
+<p>You can specify a list of <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html">IAM Policy Statements</a> to set for this Lambda's Role, as you would define in a <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-policy.html#cfn-iam-policies-policydocument">CloudFormation template</a>. <code>Ref</code>, <code>Fn::Sub</code> and <code>Fn::GetAtt</code> are supported.</p>
+<p>The value of this property is directly injected in the CloudFormation Template, so you should refer to its Resources using <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html"><code>Ref</code>, <code>Fn::Sub</code> and <code>Fn::GetAtt</code></a> instead of hardcoding ARNs. Currently, the best way to obtain a Resource's Logical Id is to use the <code>$ dawson describe</code> command or to inspect the stack from the AWS Console.</p>
+<p>A Statement that allows access to CloudWatch Logs is automatically added.</p>
+<p>️☠️ <strong>Do not harcode Physical Resource IDs nor ARNs of resources that are in any CloudFormation Stack. They will change and will break your infrastructure. Use Ref, GetAtt and Sub to refer to Logical IDs instead.</strong> ☠️</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-js">[{
+    &quot;Effect&quot;: &quot;Allow&quot;,
+    &quot;Action&quot;: [&quot;s3:PutObject&quot;],
+    &quot;Resource&quot;: [{ 'Fn::Sub': 'arn:aws:s3:::${BucketAssets}/*' }]
+}, {
+    Effect: 'Allow',
+    Action: ['dynamodb:Query', 'dynamodb:GetItem'],
+    Resource: [{ 'Fn::Sub': 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${UsersTable}*' }]
+}]
+</code></pre>
+<h2 id="-6"><code>redirects</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>boolean</code> | <strong>Default</strong>: <code>false</code><br>
+<strong>Use for</strong>: Settings wether a function is expected to return a <code>307 Temporary Redirect</code> or not</p>
+<p>If <code>true</code>, dawson expect this function to <strong>always return</strong> an Object with a <code>Location</code> key. The HTTP response will then contain the appropriate <code>Location</code> header.</p>
+<blockquote>
+<p>Due to limitations in API Gateway, you cannot return any payload when redirecting and you cannot mix redirecting and non-redirecting responses for the same function (i.e.: either a function always redirects or it never does)</p>
+</blockquote>
+<p><strong>Example</strong></p>
+<pre><code class="language-js">// a simple function that returns an HTTP redirect to https://google.com
+export function index (params) {
+  return { Location: 'https://google.com' }
+}
+index.api = {
+  path: 'something',
+  redirect: true
+}
+</code></pre>
+<hr>
+<h1 id="5-application-configuration">5. Application configuration</h1>
+<p>If the default settings does not fit your use case, you can configure dawson's behaviour by adding a <code>dawson</code> property in the <code>package.json</code> file:</p>
+<pre><code class="language-js">{
+  &quot;name&quot;: &quot;appname&quot;, // required and unique in an AWS Account
+  // other package.json fields...
+  &quot;dawson&quot;: {
+    &quot;ignore&quot;: [
+      &quot;frontend&quot;
+    ],
+    &quot;route53&quot;: {
+      &quot;default&quot;: &quot;Z187MLBSXQKXXX&quot;
+    },
+    &quot;cloudfrontRootOrigin&quot;: &quot;api&quot;,
+    &quot;cloudfront&quot;: {
+      &quot;default&quot;: true,
+      &quot;production&quot;: &quot;myapp.com&quot;,
+      &quot;bar&quot;: false
+    }
+  }
+}
+</code></pre>
+<p>You must set at least the <strong><code>name</code></strong> field in your <code>package.json</code>; this <code>name</code> will be used as a prefix for all the <code>CloudFormation</code> stacks and must be unique in a given AWS account. It's not possible to change the <code>name</code> after you have deployed your app.</p>
+<p>Optionally, you can define a <code>dawson</code> property as an Object with the following properties:</p>
+<h2 id="-7"><code>pre-deploy</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>string</code> | <strong>Default</strong>: <code>undefined</code><br>
+<strong>Use for</strong>: Specifying a bash command to run before the deployment begins</p>
+<p>A shell command to execute before starting the deployment. If command exits with status &lt;&gt; 0, the deployment is aborted.</p>
+<h2 id="-8"><code>post-deploy</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>string</code> | <strong>Default</strong>: <code>undefined</code><br>
+<strong>Use for</strong>: Specifying a bash command to run before the deployment begins</p>
+<p>A shell command to run after the deployment has been successfully completed.</p>
+<h2 id="-9"><code>ignore</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>Array&lt;string&gt;</code> | <strong>Default</strong>: <code>[]</code><br>
+<strong>Use for</strong>: Specifying files to not include in the ZIP bundle which is uploaded to AWS Lambda</p>
+<p>A list of partial paths to ignore when compiling, when zipping the bundle and when watching files for changes.<br>
+Paths should begin with <code>*</code> unless they're absolute (see <a href="https://linux.die.net/man/1/zip">zip man page</a>).<br>
+<strong>Do not</strong> specify <code>node_modules</code> here, it is already ignored when needed.</p>
+<h2 id="-10"><code>cloudfrontRootOrigin</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>&quot;api&quot; | &quot;assets&quot;</code> | <strong>Default</strong>: <code>api</code><br>
+<strong>Use for</strong>: Specifying wether the root (&quot;/&quot;) path of your app serves the contents from the <code>assets/</code> folder or from the API</p>
+<p>This option controls the <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-values-specify.html#DownloadDistValuesCacheBehavior">behaviour</a> of the CloudFront distribution and the development server.</p>
+<ul>
+<li>if <code>&quot;assets&quot;</code> (typically for <em>Single Page Apps</em>), all requests are served using the S3 Assets Bucket contents, except requests starting with <code>/prod</code> which are forwarded to your APIs.</li>
+<li>if <code>&quot;api&quot;</code> (typically for <em>APIs</em> or <em>Server-Rendered pages</em>), all requests are forwarded to your APIs, except requests starting with <code>/assets</code> which are served using the S3 Assets Bucket contents.<br>
+When forwarding requests to the S3 Assets Bucket, the <code>/assets</code> prefix will not be stripped: you need to have an <code>assets</code> folder at top level in your bucket. At the opposite, when forwarding requests to your API, the <code>/prod</code> prefix will be stripped (because it references API Gateway's Stage).<br>
+On startup, the development server prints these mappings so you can check that you've properly configured everything.</li>
+</ul>
+<h2 id="-11"><code>route53</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>Object&lt;string:string|boolean&gt;</code> | <strong>Default</strong>: <code>{}</code><br>
+<strong>Use for</strong>: Specifying Route53 Zone IDs to link to your CloudFront Distributions</p>
+<p>An object which maps app stages to Route53 Hosted Zone IDs. If an Hosted Zone ID is specified, the DNS Record corresponding to the CloudFront Alias (CNAME) is created (as an <code>A ALIAS</code> to the CloudFront distribution). Needless to say, he Route53 Hosted Zone must be an Alias' ancestor or the deployment will fail.</p>
+<h2 id="-12"><code>cloudfront</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>Object&lt;string:string|boolean&gt;</code> | <strong>Default</strong>: <code>{}</code><br>
+<strong>Use for</strong>: Specifying wether to deploy a CloudFront distribution in front of your API (<em>recommended</em>) or not.</p>
+<p>An Object which maps app stages to optional domain names.<br>
+Keys are <em>stage names</em> (see <em>Working with Stages</em> above, <code>&quot;default&quot;</code> is the default stage if you do not specify <code>--stage</code>).</p>
+<ul>
+<li>When the value is <code>false</code>, no CloudFront Distribution will be created for that stage.</li>
+<li>When the value is <code>true</code> (which is the default behaviour for stages not specified in this Object), a CloudFront Distribution will be created without any Alias (CNAME) and can be accessed using the usual <a href="https://dNNNNNNNNN.cloudfront.net">https://dNNNNNNNNN.cloudfront.net</a> URL.</li>
+<li>When the value is a valid domain name (<code>&quot;abc.string.com&quot;</code>), a CloudFront Distribution will be created and <code>&quot;abc.string.com&quot;</code> will be set as a Custom Domain Name (aka CNAME, or <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/CNAMEs.html">Alias (CNAME)</a>). The CNAME that you specify must be <strong>globally unique in AWS</strong>. If the CNAME specified here is already in use the deployment will fail. <em>An SSL/TLS certificate might be requested for this domain, see below for details.</em></li>
+</ul>
+<blockquote>
+<p>If changing this setting will result in updating, creating or deleting a CloudFront Distribution, the deployment will take approximately 15-20 minutes.</p>
+</blockquote>
+<blockquote>
+<p>We choose to serve contents only via HTTPS. A TLS certificate might be automatically requested by dawson using AWS ACM. See the next section for details.</p>
+</blockquote>
+<h2 id="51-ssltls-certificates">5.1 SSL/TLS Certificates</h2>
+<p>If you specify a custom domain (Alias, CNAME) in the cloudfront property, the following behaviour will apply:</p>
+<ol>
+<li>dawson searches your Account for AWS ACM certificates that are valid for the custom domain specified for the current stage</li>
+<li>if a certificate is found, it will be associated to this Distribution and the deployment continues</li>
+<li>if no valid certificate is found, a new SSL/TLS certificate will be requested and the deployment will be aborted. Instructions for certificate validation will be printed to the console; usually, domain contacts and some admin e-mail accounts will receive an email with a validation link. You can find more information on the validation process in the <a href="https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-validate.html">Validate Domain Ownership</a> page.</li>
+</ol>
+<p>If you don't want to request an SSL/TLS certificate you can specify the <code>--skip-acm</code> flag with every deploy command. Please be aware that specifying the <code>--skip-acm</code> flag when a certificate has been already requested and attached to a CloudFront Distribution will result in such certificate to be disassociated from the Distribution (~20 minutes to deploy).</p>
+<blockquote>
+<p><strong>Notes on the current implementation</strong></p>
+</blockquote>
+<ul>
+<li>dawson does not manage AWS ACM Certificates via CloudFormation due to an AWS Region limitation</li>
+<li>AWS ACM Certificates for CloudFormation will be created in the us-east-1</li>
+<li>dawson never deletes AWS ACM Certificates and won't request a new certificate if a valid one is found</li>
+</ul>
+<h1 id="6-working-with-the-template">6. Working with the Template</h1>
+<p>As we introduced above, the Template is a textual (JSON) representations of all the Resources that compose your infrastructure. The Template is a pure <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-guide.html">AWS CloudFormation Template</a>, which you can fully customize.</p>
+<p>As you may know, each CloudFormation Template is composed by a <code>Resources</code> and an <code>Outputs</code> properties. Outputs contains a map to values that external Resources can access.</p>
+<h2 id="61-adding-custom-resources">6.1 Adding custom resources</h2>
+<p>Sooner or later, you'll probably need to add more Resources to your infrastructure, such as DynamoDB Tables, S3 Buckets, SQS Queues, SNS Topics, etc. dawson provides a method to add custom resources to the Template that will be deployed to AWS.</p>
+<p>Define and export a function named <code>customTemplateFragment</code> from the <code>api.js</code> file; this function takes two parameters and must return an Object, which dawson will merge its Resources on.</p>
+<p>There's no particular restriction on what resources you can add here, just keep in mind that:</p>
+<ul>
+<li>you have no access to the Template generated by dawson (because it's actually not yet <em>created</em>)</li>
+<li>you must avoid circular dependencies between resources</li>
+<li>if you are defining more than 5 DynamoDB Tables, the first creation will fail with a message saying that there are too many indexes being provisoned. You should add dependencies between Tables using the DependsOn property to force CloudFormation to deploy them serially and not in parallel</li>
+<li>if you add an API Gateway Method, you should update the <code>&lt;deploymentLogicalName&gt;.DependsOn</code> list to include such method's Logical Name (what?! more <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-deployment.html">here</a>, scroll down to &quot;Method Dependency&quot;, ask me if unclear), otherwise you'll get a cryptic error from CloudFormation / API Gateway. <code>deploymentLogicalName</code> is available as <code>deploymentLogicalName</code> property on <code>cutomTemplateFragment</code>'s second parameter</li>
+</ul>
+<p><strong>You may check out dawson's <a href="https://github.com/dawson-org/dawson-snippets">ready to use Resources Snippets</a>.</strong></p>
+<p><strong>Example</strong></p>
+<pre><code class="language-js">export function customTemplateFragment(currentTemplate, dawsonInternalVariables);
+ // currentTemplate = {} -- because this function is called before processing anything
+ // dawsonInternalVariables = {
+ //   deploymentLogicalName: `&lt;RANDOM STRING&gt;`
+ // }
+ return {
+    Resources: {
+        BucketVideos: {
+            // create a new Bucket with BucketVideos as Logical Name
+            Type: 'AWS::S3::Bucket'
+        }
+    },
+    Outputs: {
+        // publishes the BucketVideos' Physical Name (the actual AWS Resource Name)
+        // so it's available as
+        // process.env.DAWSON_BucketVideos
+        // in every Function
+        BucketVideos: { Value: { Ref: 'BucketVideos' } }
+    }
+ };
+}
+</code></pre>
+<p>Please <strong>do not hardcode Resource IDs</strong> in your code. <strong>They will change and will break your application</strong>. Always set an Output and access the Physical Resource Id from <code>process.env</code>. It's also tempting to use developer-provided names for resources such as DynamoDB Tables and S3 Buckets: don't; it will probably break the built-in Stages support.</p>
+<blockquote>
+<p>The full Template Reference is available in the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-reference.html">AWS CloudFormation User Guide</a>.<br>
+You may check out dawson's <a href="https://github.com/dawson-org/dawson-snippets">ready to use Resources Snippets</a>.<br>
+You can use <code>Fn::GetAtt</code>, <code>Fn::Sub</code>, <code>Ref</code> etc to reference other resources in this Template.</p>
+</blockquote>
+<h2 id="62-modifying-dawson-managed-resources">6.2 Modifying dawson-managed resources</h2>
+<p>You can modify every part of a Template, overriding dawson's configuration.</p>
+<p>Define and export a function named <code>processCFTemplate</code> from the <code>api.js</code> file; this function takes the Template Object right before dawson deploys it and must return an updated Template Object.</p>
+<p>There's one gotcha: you <strong>can not add or modify <code>Outputs</code></strong> using this function.</p>
+<p><strong>Example</strong></p>
+<pre><code class="language-js">import merge from 'lodash/merge'; // you can use any implementation of (deep) merge, or just merge &quot;by hand&quot;
+
+export function processCFTemplate (template) {
+    return merge(template, {
+        Resources: {
+            BucketAssets: {
+                Properties: {
+                    /* sets the contents of BucketAssets to private, otherwise public by default */
+                    AccessControl: 'Private'
+                }
+            }
+        }
+    });
+}
+</code></pre>
+<blockquote>
+<p>The full Template Reference is available in the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-reference.html">AWS CloudFormation User Guide</a>.<br>
+You can use <code>Fn::GetAtt</code>, <code>Fn::Sub</code>, <code>Ref</code> etc to reference other resources in this Template.</p>
+</blockquote>
+<blockquote>
+<p>Technically, you <em>could</em> add or modiffy Outputs using this function; they just won't be availabe to Functions via <code>process.env.DAWSON_xxx</code>, because it's too late for them to be added to the <code>Environment</code> property in CloudFormation.</p>
+</blockquote>
+<hr>
+<h1 id="7-working-with-the-development-server">7. Working with the Development Server</h1>
+<p>TODO</p>
+<pre><code class="language-bash">$ dawson dev --help
+</code></pre>
+</div></div><div class="spacer-50"></div></div></body></html>
