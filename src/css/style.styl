@@ -1,6 +1,10 @@
 @import 'nib'
 @import 'rupture'
-@import url('//fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400');
+@import url('//fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400')
+
+rupture.scale = 0 35.5em 48em 64em 80em
+rupture.anti-overlap = -0.5px
+rupture.scale-names = 'sm' 'md' 'lg' 'xl' 'hd'
 
 $orange = #f8b133
 $darkorange = #f88933
@@ -9,6 +13,15 @@ $darkorange = #f88933
   font-family 'Source Sans Pro', sans-serif
 .monospace
   font-family 'Inconsolata', monospace
+  
+.pure-g [class *='pure-u'],
+.pure-g-r [class*="pure-u"]
+  @extends .sans
+  
+_align = 'left', 'center', 'right'
+for _a in _align
+  .text-{ _a }
+    text-align unquote(_a)
 
 _spacer = 5, 10, 20, 30, 40, 50, 60, 80, 100
 for _s in _spacer
@@ -40,13 +53,7 @@ a
 img
   display block
   margin 0 auto
-  max-width 100%
   height auto
-  
-hr
-  border none
-  height 1px
-  background #ccc
   
 .padding
   padding 10px
@@ -61,10 +68,14 @@ nav
   a
     box-shadow none
     text-shadow none
-    img
+    text-decoration none
+    *
       display inline-block
-      height 35px
-      width auto
+      vertical-align middle
+  img
+    height 30px
+    width auto
+    margin 0
 
 // -- terminal window from: https://codepen.io/simoami/pen/zstvo
 .terminal-window
@@ -140,7 +151,7 @@ nav
       color rgba($darkorange, 0.7)
       font-size 0.6em
       position absolute
-      left -20px
+      left -40px
       bottom .25em
   h2
     position relative
@@ -150,11 +161,48 @@ nav
       color rgba($orange, 0.7)
       font-size 0.6em
       position absolute
-      left -20px
+      left -30px
       bottom .25em
       
   blockquote
-    border-left 4px solid #ddd
-    color #bbb
+    border-left 4px solid #ccc
+    color #777
     padding-left 20px
     margin 0
+    
+  p + h2,
+  pre + h1
+    margin-top 50px
+
+  hr
+    border none
+    height 1px
+    background #ccc
+    margin-top 50px
+    margin-bottom 50px
+    
+  code
+    @extends .monospace
+    font-weight 400
+    
++below('sm')
+  .hide-mobile
+    display none
+
+  .terminal-window
+    display none
+    & + .spacer-50
+      display none
+  
+  #top
+    height auto
+    .container
+      position relative
+      top auto
+      left auto
+      transform none
+    img.logo
+      height 50px
+      width auto
+    h1
+      font-size 1.5em

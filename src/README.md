@@ -1,4 +1,4 @@
-dawson documentation
+documentation
 ====================
 
 dawson is a [serverless](https://auth0.com/blog/what-is-serverless/) web framework for Node.js on AWS. dawson uses [AWS CloudFormation](https://aws.amazon.com/cloudformation/), [Amazon CloudFront](https://aws.amazon.com/cloudfront/), [Amazon API Gateway](https://aws.amazon.com/apigateway/) and  [AWS Lambda](https://aws.amazon.com/lambda/) to deploy the backend code and to manage the infrastructure for you. 
