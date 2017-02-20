@@ -15,10 +15,14 @@ block body
         section.terminal
           .history
             | $ npm install -g dawson
-            br
-            | $ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
+            //-
+              br
+              | $ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
             br
             | $ dawson deploy
+      .spacer-20
+      a.pure-button.pure-button-negative(href='docs.html')
+        span View full documentation
       .spacer-50
 
   #preview
@@ -39,3 +43,10 @@ block body
           #### [tl;dr show me the code!](docs.html)
 
     .spacer-50
+
+
+  footer
+    .container
+      a(href='https://github.com/dawson-org/dawson-cli' target='_blank') View and contribute on <strong>github</strong>
+
+  .spacer-50

@@ -18,6 +18,80 @@ $darkorange = #f88933
 .pure-g-r [class*="pure-u"]
   @extends .sans
   
+.pure-button
+  @extends .sans
+  appearance none
+  background $orange
+  border none
+  box-shadow none
+  border-radius 5px
+  border 1px solid @background
+  color #FFF
+  padding 0.5em 1.1em 0.7em
+  transition background 0.4s ease, border-color 0.4s ease, color 0.4s ease
+  &:hover
+    box-shadow none
+    background darken(@background, 10%)
+    border-color @background
+  &:focus,
+  &:active
+    background-image none
+    box-shadow none
+  
+  &.outline
+    background none !important
+    color #AAA
+    &:hover
+      color darken(@color, 10%)
+
+  &.pure-button-primary
+    background $darkorange
+    border-color @background
+    &:hover
+      background darken(@background, 10%)
+      border-color @background
+    &.outline
+      color @background
+      &:hover
+        color darken(@color, 10%)
+
+  &.pure-button-negative
+    background #fff
+    color $darkorange
+    &:hover
+      background #fff
+    &.outline
+      color #FFF
+
+  &.pure-button-small
+    padding 0.2em 1em 0.4em
+    i
+      font-size 14px
+
+  &.pure-button-block
+    width 100%
+
+  & + .pure-button
+    margin-left 0.6em
+
+  span
+    text-transform uppercase
+    font-size 13px
+    font-weight 600
+    
+  i
+    font-size 18px
+
+  & > span,
+  & > i,
+  & > img
+    display inline-block
+    vertical-align middle
+    & + span,
+    & + i,
+    & + img
+      margin-left 10px
+  
 _align = 'left', 'center', 'right'
 for _a in _align
   .text-{ _a }
@@ -32,7 +106,8 @@ html,
 body
   height 100%
   @extends .sans
-  font-weight 300
+  font-weight 400
+  color #333
   
 h1
   font-weight 200
@@ -137,7 +212,8 @@ nav
     margin 0 auto
 
 #preview,
-#readme
+#readme,
+footer
   .container
     width 960px
     max-width 100%
@@ -209,7 +285,3 @@ nav
       width auto
     h1
       font-size 1.5em
-      
-  #readme
-    a
-      word-break break-all
