@@ -90,7 +90,7 @@ gulp.task('CNAME', () => (
 
 
 gulp.task('watch', () => {
-  gulp.watch('./src/*.pug', ['layout']);
+  gulp.watch(['./src/*.pug', './src/*.md'], ['layout']);
   gulp.watch('./src/css/*.styl', ['style']);
   gulp.watch('./src/img/**/*', ['imgs']);
   gulp.watch('./src/js/**/*.js', ['js']);

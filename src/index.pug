@@ -2,51 +2,105 @@ extends _layout
 
 block body
   #top
+    a.github(href='https://github.com/dawson-org/dawson-cli')
+      img(src='img/GitHub-Mark-Light-64px.png')
     .container
-      .spacer-50
+      .spacer-100
       img.logo(src='img/dawson-logo@2x-white.png' alt='dawson | a serverless framework for Node.js on AWS')
       h1 a serverless framework for Node.js on AWS
       .spacer-50
+
       .terminal-window
-        header
-          .button.green
-          .button.yellow
-          .button.red
-        section.terminal
-          .history
-            | $ npm install -g dawson
-            //-
-              br
-              | $ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
-            br
-            | $ dawson deploy
+        .bar
+          .btn
+        .body
+          pre
+            .comment # installing dawson globally
+            .prompt
+              | $&nbsp;
+              span.command npm install -g dawson
+            .comment # loading your AWS credentials
+            .prompt
+              | $&nbsp;
+              span.command source .env
+            .comment # deploy your app
+            .prompt
+              | $&nbsp;
+              span.command dawson deploy
+              //- span.pulse _
+      
       .spacer-20
       a.pure-button.pure-button-negative(href='docs.html')
         span View full documentation
-      .spacer-50
+      .spacer-100
 
   #preview
     .container
       .spacer-50
       .padding
-        :markdown-it(breaks=true linkify=true)
 
-          dawson is a [serverless](https://auth0.com/blog/what-is-serverless/) web framework for Node.js on AWS. dawson uses [AWS CloudFormation](https://aws.amazon.com/cloudformation/), [Amazon CloudFront](https://aws.amazon.com/cloudfront/), [Amazon API Gateway](https://aws.amazon.com/apigateway/) and  [AWS Lambda](https://aws.amazon.com/lambda/) to deploy the backend code and to manage the infrastructure for you. 
+        .intro
+          :markdown-it(breaks=true linkify=true)
 
-          ### Is dawson for me?
-          👍 I'm building a single-page app/website with a backend  
-          👍 I'm building an API   
-          👍 I'm building a server-rendered app/website  
+            dawson is a [serverless](https://auth0.com/blog/what-is-serverless/) web framework for Node.js on AWS. dawson uses [AWS CloudFormation](https://aws.amazon.com/cloudformation/), [Amazon CloudFront](https://aws.amazon.com/cloudfront/), [Amazon API Gateway](https://aws.amazon.com/apigateway/) and  [AWS Lambda](https://aws.amazon.com/lambda/) to deploy the backend code and to manage the infrastructure for you. 
 
-          The main goal of dawson is to be a zero-configuration yet fully extensible *[backend]* web framework for building web apps on AWS. You should be able to start using dawson without creating any configuration file and with only a basic knowledge of Amazon Web Services.
+        .spacer-50
 
-          #### [tl;dr show me the code!](docs.html)
+        .others
+          .text-center.for-me
+            h1 Is dawson for me?
+            .pure-g
+              .pure-u-1.pure-u-md-1-3
+                .padding
+                  img(src='img/icon-code-100.png')
+                  h3 I'm building a single-page app/website with a backend
+              .pure-u-1.pure-u-md-1-3
+                .padding
+                  img(src='img/icon-api-100.png')
+                  h3 I'm building an API
+              .pure-u-1.pure-u-md-1-3
+                .padding
+                  img(src='img/icon-website-100.png')
+                  h3 I'm building a server-rendered app/website
+
+          .spacer-50
+
+          :markdown-it(breaks=true linkify=true html=true)
+            The main goal of dawson is to be a zero-configuration yet fully extensible *[backend]* web framework for building web apps on AWS. You should be able to start using dawson without creating any configuration file and with only a basic knowledge of Amazon Web Services.
+
+            <div class="spacer-10"></div>
+
+            ```js
+            // api.js
+            export function greet (event) {
+                const name = event.params.path.name
+                return `Hello ${name}, you look awesome!`
+            }
+            greet.api = {
+                path: 'greet/{name}'
+            }
+            ```
+            ```bash
+            $ # we strongly recommend to read this guide
+            $ #     before getting your hands dirty     
+            $ npm install -g dawson
+            $ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
+            $ dawson deploy
+
+
+          .spacer-10
+          .text-center
+            a.pure-button(href='docs.html')
+              span View full documentation
 
     .spacer-50
 
 
   footer
     .container
-      a(href='https://github.com/dawson-org/dawson-cli' target='_blank') View and contribute on <strong>github</strong>
+      .padding
+        p.text-center
+          | Made with &hearts; in Milan&nbsp;&nbsp;&nbsp;&middot;&nbsp;&nbsp;&nbsp;
+          a(href='https://github.com/dawson-org/dawson-cli' target='_blank') View and contribute on <strong>github</strong>
 
   .spacer-50
