@@ -1,6 +1,6 @@
 @import 'nib'
 @import 'rupture'
-@import url('//fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400')
+@import url('//fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:300,400,600')
 
 rupture.scale = 0 35.5em 48em 64em 80em
 rupture.anti-overlap = -0.5px
@@ -120,7 +120,7 @@ h6
   font-weight 400
 
 strong
-  font-weight 400
+  font-weight 700
 
 a
   color $darkorange
@@ -271,6 +271,7 @@ footer
 
 #readme
   font-weight 400
+  line-height 1.5rem
   h1
     position relative
     color $darkorange
@@ -293,12 +294,17 @@ footer
       bottom .25em
       
   blockquote
+    /*
     background rgba($orange, .15)
     color rgba($darkorange, .9)
+    */
+    background rgba(#ccc, .15)
+    color rgba(#999, .8)
     padding 10px 20px
     margin 0
     a
       text-decoration underline
+      color rgba(#999, .8)
     
   p + h2,
   pre + h1
