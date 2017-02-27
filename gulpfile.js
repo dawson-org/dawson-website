@@ -11,6 +11,9 @@ const changed = require('gulp-changed');
 const filter = require('gulp-filter');
 const uglify = require('gulp-uglify');
 const rename = require('gulp-rename');
+const remote = require('gulp-remote-src');
+
+const REMOTE_README = 'https://raw.githubusercontent.com/dawson-org/dawson-cli/master/docs/';
 
 const plumberOpts = {
   errorHandler: (err) => { console.log(err); },
@@ -32,7 +35,16 @@ gulp.task('serve', () => (
 ));
 
 
-gulp.task('layout', () => (
+gulp.task('README', () => {
+  remote(
+    'README.md',
+    { base: REMOTE_README }
+  )
+    .pipe(gulp.dest('./src', { overwrite: true }))
+});
+
+
+gulp.task('layout', ['README'], () => (
   gulp
     .src([
       './src/*.pug',
@@ -99,5 +111,5 @@ gulp.task('watch', () => {
 
 
 
-gulp.task('default', ['clean', 'layout', 'style', 'imgs', 'js', 'CNAME', 'watch', 'serve']);
-gulp.task('build', ['clean', 'layout', 'style', 'imgs', 'js', 'CNAME']);
+gulp.task('default', ['clean', 'README', 'layout', 'style', 'imgs', 'js', 'CNAME', 'watch', 'serve']);
+gulp.task('build', ['clean', 'README', 'layout', 'style', 'imgs', 'js', 'CNAME']);

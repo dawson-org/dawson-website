@@ -21,6 +21,7 @@
     "gulp-plumber": "^1.1.0",
     "gulp-pug": "^3.1.0",
     "gulp-pug-inheritance": "^0.2.1",
+    "gulp-remote-src": "^0.4.2",
     "gulp-rename": "^1.2.2",
     "gulp-stylus": "^2.5.0",
     "gulp-uglify": "^2.0.0",

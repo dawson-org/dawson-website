@@ -1,5 +1,28 @@
-<!DOCTYPE html><html><head><title>dawson | a serverless framework for Node.js on AWS</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta name="keywords" content=""><meta name="author" content=""><meta name="description" content=""><meta property="og:title" content=""><meta property="og:url" content=""><meta property="og:description" content=""><meta property="og:image" content=""><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="/css/style.min.css?v=1487952701521"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/javascript.min.js"></script><script>hljs.initHighlightingOnLoad();
-</script><meta name="msapplication-TileColor" content="#584843"><meta name="msapplication-TileImage" content="img/mstile-icon.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" href="/img/favicon.png" type="image/png"></head><body><nav><div class="spacer-10"></div><div class="container"><div class="padding"><div class="pure-g"><div class="pure-u-1 pure-u-sm-2-3"><div class="text-left"><a href="/"><img src="/img/dawson-logo@2x.png" alt="dawson | a serverless framework for Node.js on AWS"></a></div></div><div class="pure-u-1 pure-u-sm-1-3 hide-mobile"><div class="text-right"><a href="index.html"><span>back to d<span style='font-size: 0.7em'>&Lambda;</span>wson website</span></a></div></div></div></div></div><div class="spacer-10"></div></nav><div id="readme"><div class="container"><div class="padding"><h1 id="table-of-contents">Table of Contents</h1>
+<!DOCTYPE html><html><head><title>dawson | a serverless framework for Node.js on AWS</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta name="keywords" content=""><meta name="author" content=""><meta name="description" content=""><meta property="og:title" content=""><meta property="og:url" content=""><meta property="og:description" content=""><meta property="og:image" content=""><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="/css/style.min.css?v=1488193887809"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/javascript.min.js"></script><script>hljs.initHighlightingOnLoad();
+</script><meta name="msapplication-TileColor" content="#584843"><meta name="msapplication-TileImage" content="img/mstile-icon.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" href="/img/favicon.png" type="image/png"></head><body><nav><div class="spacer-10"></div><div class="container"><div class="padding"><div class="pure-g"><div class="pure-u-1 pure-u-sm-2-3"><div class="text-left"><a href="/"><img src="/img/dawson-logo@2x.png" alt="dawson | a serverless framework for Node.js on AWS"></a></div></div><div class="pure-u-1 pure-u-sm-1-3 hide-mobile"><div class="text-right"><a href="index.html"><span>back to d<span style='font-size: 0.7em'>&Lambda;</span>wson website</span></a></div></div></div></div></div><div class="spacer-10"></div></nav><div id="readme"><div class="container"><div class="padding"><h1 id="dawson-documentation">dawson documentation</h1>
+<p>dawson is a <a href="https://auth0.com/blog/what-is-serverless/">serverless</a> web framework for Node.js on AWS. dawson uses <a href="https://aws.amazon.com/cloudformation/">AWS CloudFormation</a>, <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a>, <a href="https://aws.amazon.com/apigateway/">Amazon API Gateway</a> and  <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> to deploy the backend code and to manage the infrastructure for you.</p>
+<h3 id="is-dawson-for-me">Is dawson for me?</h3>
+<p>👍 I'm building a single-page app/website with a backend<br>
+👍 I'm building an API<br>
+👍 I'm building a server-rendered app/website</p>
+<p>The main goal of dawson is to be a zero-configuration yet fully extensible <em>[backend]</em> web framework for building web apps on AWS. You should be able to start using dawson without creating any configuration file and with only a basic knowledge of Amazon Web Services.</p>
+<h4 id="tldr-show-me-the-code">tl;dr show me the code!</h4>
+<pre><code class="language-js">// api.js
+export function greet (event) {
+    const name = event.params.path.name
+    return `Hello ${name}, you look awesome!`
+}
+greet.api = {
+    path: 'greet/{name}'
+}
+</code></pre>
+<pre><code class="language-bash">$ # 🛑 we strongly recommend to read this guide 🛑
+$ # 🛑     before getting your hands dirty      🛑
+$ npm install -g dawson
+$ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
+$ dawson deploy
+</code></pre>
+<h1 id="table-of-contents">Table of Contents</h1>
 <!-- toc -->
 <ul>
 <li><a href="#0-working-with-aws">0. Working with AWS</a>
@@ -44,6 +67,7 @@
 <li><a href="#authorizer"><code>authorizer</code></a></li>
 <li><a href="#policystatements"><code>policyStatements</code></a></li>
 <li><a href="#redirects"><code>redirects</code></a></li>
+<li><a href="#devinstrument"><code>devInstrument</code></a></li>
 </ul>
 </li>
 <li><a href="#5-application-configuration">5. Application configuration</a>
@@ -412,7 +436,7 @@ If <code>false</code>, no API Gateway method will be deployed (see <a href="./Fu
 </code></pre>
 <h2 id="-6"><code>redirects</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>boolean</code> | <strong>Default</strong>: <code>false</code><br>
-<strong>Use for</strong>: Settings wether a function is expected to return a <code>307 Temporary Redirect</code> or not</p>
+<strong>Use for</strong>: Sets wether a function is expected to return a <code>307 Temporary Redirect</code> or not</p>
 <p>If <code>true</code>, dawson expect this function to <strong>always return</strong> an Object with a <code>Location</code> key. The HTTP response will then contain the appropriate <code>Location</code> header.</p>
 <blockquote>
 <p>Due to limitations in API Gateway, you cannot return any payload when redirecting and you cannot mix redirecting and non-redirecting responses for the same function (i.e.: either a function always redirects or it never does)</p>
@@ -427,6 +451,33 @@ index.api = {
   redirect: true
 }
 </code></pre>
+<h2 id="-7"><code>devInstrument</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>boolean</code> | <strong>Default</strong>: <code>false</code><br>
+<strong>Use for</strong>: running event-handling Functions locally</p>
+<p>This option can be useful to test from the Development Server, Functions that run in response to non-HTTP events (such as S3 Events).<br>
+If <code>true</code>, Events generated on AWS will be piped locally to this Function.</p>
+<p>dawson pipes any <a href="https://docs.aws.amazon.com/lambda/latest/dg/invoking-lambda-function.html">event supported by Lambda</a> other than API Gateway's events, such as events coming from the following services:</p>
+<ul>
+<li>Amazon S3</li>
+<li>Amazon DynamoDB</li>
+<li>Amazon Kinesis Streams</li>
+<li>Amazon Simple Notification Service</li>
+<li>Amazon Simple Email Service</li>
+<li>Amazon Cognito</li>
+<li>AWS CloudFormation</li>
+<li>Amazon CloudWatch Logs</li>
+<li>Amazon CloudWatch Events</li>
+<li>AWS CodeCommit</li>
+<li>Scheduled Events (powered by Amazon CloudWatch Events)</li>
+<li>AWS Config</li>
+<li>Amazon Echo</li>
+<li>Amazon Lex</li>
+</ul>
+<blockquote>
+<p>To ensure that each event is not processed both by AWS Lambda and by the Development Server, when this option is set to <code>true</code> this AWS Lambda Function is configured to ignore any Event she receives.<br>
+Unless you know what you're doing, setting this option to <code>true</code> in production is not a good idea.</p>
+</blockquote>
+<p>This option can only be set when <code>path === false</code>, as it makes no sense to use this when an API Gateway Endpoint is present.</p>
 <hr>
 <h1 id="5-application-configuration">5. Application configuration</h1>
 <p>If the default settings does not fit your use case, you can configure dawson's behaviour by adding a <code>dawson</code> property in the <code>package.json</code> file:</p>
@@ -451,21 +502,21 @@ index.api = {
 </code></pre>
 <p>You must set at least the <strong><code>name</code></strong> field in your <code>package.json</code>; this <code>name</code> will be used as a prefix for all the <code>CloudFormation</code> stacks and must be unique in a given AWS account. It's not possible to change the <code>name</code> after you have deployed your app.</p>
 <p>Optionally, you can define a <code>dawson</code> property as an Object with the following properties:</p>
-<h2 id="-7"><code>pre-deploy</code></h2>
+<h2 id="-8"><code>pre-deploy</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>string</code> | <strong>Default</strong>: <code>undefined</code><br>
 <strong>Use for</strong>: Specifying a bash command to run before the deployment begins</p>
 <p>A shell command to execute before starting the deployment. If command exits with status &lt;&gt; 0, the deployment is aborted.</p>
-<h2 id="-8"><code>post-deploy</code></h2>
+<h2 id="-9"><code>post-deploy</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>string</code> | <strong>Default</strong>: <code>undefined</code><br>
 <strong>Use for</strong>: Specifying a bash command to run before the deployment begins</p>
 <p>A shell command to run after the deployment has been successfully completed.</p>
-<h2 id="-9"><code>ignore</code></h2>
+<h2 id="-10"><code>ignore</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>Array&lt;string&gt;</code> | <strong>Default</strong>: <code>[]</code><br>
 <strong>Use for</strong>: Specifying files to not include in the ZIP bundle which is uploaded to AWS Lambda</p>
 <p>A list of partial paths to ignore when compiling, when zipping the bundle and when watching files for changes.<br>
 Paths should begin with <code>*</code> unless they're absolute (see <a href="https://linux.die.net/man/1/zip">zip man page</a>).<br>
 <strong>Do not</strong> specify <code>node_modules</code> here, it is already ignored when needed.</p>
-<h2 id="-10"><code>cloudfrontRootOrigin</code></h2>
+<h2 id="-11"><code>cloudfrontRootOrigin</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>&quot;api&quot; | &quot;assets&quot;</code> | <strong>Default</strong>: <code>api</code><br>
 <strong>Use for</strong>: Specifying wether the root (&quot;/&quot;) path of your app serves the contents from the <code>assets/</code> folder or from the API</p>
 <p>This option controls the <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-values-specify.html#DownloadDistValuesCacheBehavior">behaviour</a> of the CloudFront distribution and the development server.</p>
@@ -475,11 +526,11 @@ Paths should begin with <code>*</code> unless they're absolute (see <a href="htt
 When forwarding requests to the S3 Assets Bucket, the <code>/assets</code> prefix will not be stripped: you need to have an <code>assets</code> folder at top level in your bucket. At the opposite, when forwarding requests to your API, the <code>/prod</code> prefix will be stripped (because it references API Gateway's Stage).<br>
 On startup, the development server prints these mappings so you can check that you've properly configured everything.</li>
 </ul>
-<h2 id="-11"><code>route53</code></h2>
+<h2 id="-12"><code>route53</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>Object&lt;string:string|boolean&gt;</code> | <strong>Default</strong>: <code>{}</code><br>
 <strong>Use for</strong>: Specifying Route53 Zone IDs to link to your CloudFront Distributions</p>
 <p>An object which maps app stages to Route53 Hosted Zone IDs. If an Hosted Zone ID is specified, the DNS Record corresponding to the CloudFront Alias (CNAME) is created (as an <code>A ALIAS</code> to the CloudFront distribution). Needless to say, he Route53 Hosted Zone must be an Alias' ancestor or the deployment will fail.</p>
-<h2 id="-12"><code>cloudfront</code></h2>
+<h2 id="-13"><code>cloudfront</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>Object&lt;string:string|boolean&gt;</code> | <strong>Default</strong>: <code>{}</code><br>
 <strong>Use for</strong>: Specifying wether to deploy a CloudFront distribution in front of your API (<em>recommended</em>) or not.</p>
 <p>An Object which maps app stages to optional domain names.<br>
