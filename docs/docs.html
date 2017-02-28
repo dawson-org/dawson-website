@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>dawson | a serverless framework for Node.js on AWS</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta name="keywords" content=""><meta name="author" content=""><meta name="description" content=""><meta property="og:title" content=""><meta property="og:url" content=""><meta property="og:description" content=""><meta property="og:image" content=""><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="/css/style.min.css?v=1488291549372"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/javascript.min.js"></script><script>hljs.initHighlightingOnLoad();
+<!DOCTYPE html><html><head><title>dawson | a serverless framework for Node.js on AWS</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta name="keywords" content=""><meta name="author" content=""><meta name="description" content=""><meta property="og:title" content=""><meta property="og:url" content=""><meta property="og:description" content=""><meta property="og:image" content=""><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="/css/style.min.css?v=1488294131266"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/javascript.min.js"></script><script>hljs.initHighlightingOnLoad();
 </script><meta name="msapplication-TileColor" content="#584843"><meta name="msapplication-TileImage" content="img/mstile-icon.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" href="/img/favicon.png" type="image/png"></head><body><nav><div class="spacer-10"></div><div class="container"><div class="padding"><div class="pure-g"><div class="pure-u-1 pure-u-sm-2-3"><div class="text-left"><a href="/"><img src="/img/dawson-logo@2x.png" alt="dawson | a serverless framework for Node.js on AWS"></a></div></div><div class="pure-u-1 pure-u-sm-1-3 hide-mobile"><div class="text-right"><a href="index.html"><span>back to d<span style='font-size: 0.7em'>&Lambda;</span>wson website</span></a></div></div></div></div></div><div class="spacer-10"></div></nav><div id="readme"><div class="container"><div class="padding"><h1 id="dawson-documentation">dawson documentation</h1>
 <p>dawson is a <a href="https://auth0.com/blog/what-is-serverless/">serverless</a> web framework for Node.js on AWS. dawson uses <a href="https://aws.amazon.com/cloudformation/">AWS CloudFormation</a>, <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a>, <a href="https://aws.amazon.com/apigateway/">Amazon API Gateway</a> and  <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> to deploy the backend code and to manage the infrastructure for you.</p>
 <h3 id="is-dawson-for-me">Is dawson for me?</h3>
@@ -36,7 +36,7 @@ $ dawson deploy
 <li><a href="#11-installing">1.1 installing</a></li>
 <li><a href="#12-packagejson-and-entry-point">1.2 package.json and entry point</a></li>
 <li><a href="#13-the-dawson-cli">1.3 the dawson CLI</a></li>
-<li><a href="#14-templates-under-the-hood">1.4 templates, <em>under the hood</em></a></li>
+<li><a href="#14-templates-and-built-in-resources">1.4 Templates and built-in Resources</a></li>
 <li><a href="#15-working-with-stages">1.5 working with <em>stage</em>s</a></li>
 <li><a href="#16-deployment-speed">1.6 deployment speed</a></li>
 </ul>
@@ -75,9 +75,10 @@ $ dawson deploy
 <li><a href="#pre-deploy"><code>pre-deploy</code></a></li>
 <li><a href="#post-deploy"><code>post-deploy</code></a></li>
 <li><a href="#ignore"><code>ignore</code></a></li>
-<li><a href="#cloudfrontrootorigin"><code>root</code></a></li>
+<li><a href="#root"><code>root</code></a></li>
 <li><a href="#route53"><code>route53</code></a></li>
 <li><a href="#cloudfront"><code>cloudfront</code></a></li>
+<li><a href="#assetsdir"><code>assetsDir</code></a></li>
 <li><a href="#51-ssltls-certificates">5.1 SSL/TLS Certificates</a></li>
 </ul>
 </li>
@@ -141,15 +142,45 @@ dawson uses the <code>name</code> field in the <code>package.json</code> file in
 <code>$ dawson log -t -f &lt;function&gt;</code> pulls function's logs from AWS in real time<br>
 <code>$ dawson describe</code> list all of the Resources that have been deployed<br>
 <code>$ dawson dev</code> starts a <strong>development server</strong></p>
-<h2 id="14-templates-under-the-hood">1.4 templates, <em>under the hood</em></h2>
+<h2 id="14-templates-and-built-in-resources">1.4 Templates and built-in Resources</h2>
 <p>When you run the <code>$ dawson deploy</code> command, dawson reads your file's contents and constructs a (<em>JSON</em>) description of the AWS infrastructure that needs to be created (functions, API endpoints, etc...). Such description is called <strong>Template</strong>. The Template is then uploaded to AWS, which performs the actual deploy. AWS takes care of creating resources, calculating changes and to perform the actual deployment.</p>
+<blockquote>
+<p>Some Template components respects the NODE_ENV variable. Set <code>NODE_ENV = production</code> when deploying to a production environment. For example, stages deployed with <code>NODE_ENV = production</code> cannot be used with <code>$ dawson dev</code>.</p>
+</blockquote>
 <p><strong>The description will contain the following Resources:</strong></p>
 <ul>
-<li>each Function, defined as an <a href="https://aws.amazon.com/lambda/faqs/">AWS Lambda Function</a></li>
-<li>an <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-step-by-step.html">API Gateway HTTP Endpoint</a>, linked to each function (if a <code>path</code> is set)</li>
-<li>one <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html">S3 Bucket</a> is created and your static assets (html, css, js,...) are uploaded there; dawson calls it <code>BucketAssets</code></li>
-<li>a <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html">CloudFront Distribution</a> (<em>like a CDN</em>) is created and is configured to serve the static assets from S3 and the API Endpoints from API Gateway; dawson calls it <code>WWWDistribution</code></li>
-<li><em>other support resources</em></li>
+<li>one <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html">API Gateway REST API</a>
+<ul>
+<li>plus, one <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-stage.html">API Gateway Stage</a></li>
+<li>plus, one <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-deployment.html">API Gateway Deployment</a></li>
+<li>plus, one <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-account.html">API Gateway Account</a> (plus one Execution Role)</li>
+</ul>
+</li>
+<li>one <em>Public Assets</em> <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingBucket.html">S3 Bucket</a> is created and your <strong>static assets</strong> (css, js, images, html, ...) are uploaded there; dawson calls it <strong><code>BucketAssets</code></strong>. Content of this bucket is <em>public-read</em>able.</li>
+<li>one <a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html">CloudFront Distribution</a> (<em>like a CDN</em>) is created and is configured to serve the static assets from the S3 Bucket and the API Endpoints from API Gateway; dawson calls it <strong><code>DistributionWWW</code></strong>
+<ul>
+<li>plus, one <a href="https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html">AWS ACM Certificate</a> if you have set a Custom Domain (CNAME) - <em>currently, AWS ACM is not managed via CloudFront due to an AWS limitation</em></li>
+<li>plus, one <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-recordset.html">Route53 RecordSet</a> if you have specified a hostedZoneId</li>
+<li>plus, one <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-waf-webacl.html">AWS WAF WebACL</a> (<a href="https://aws.amazon.com/waf/pricing/">pricing</a>) if you deploy with <code>NODE_ENV = production</code></li>
+</ul>
+</li>
+<li>for each function that you <em>export</em>:
+<ul>
+<li>an <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html">AWS Lambda Function</a>
+<ul>
+<li>an <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html">IAM Role</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-policy.html">IAM Policy</a> (Execution Role)</li>
+<li>a <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-permission.html">Lambda Permission</a> (to allow API Gateway to call this Function)</li>
+</ul>
+</li>
+<li><em>[if the function's path is specified]</em> an <a href="https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-step-by-step.html">API Gateway HTTP Endpoint</a>
+<ul>
+<li>the related <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-model.html">Model</a>, <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-method.html">Method</a>, <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-resource.html">Resource</a>,  <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-authorizer.html">Authorizer*</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#61-adding-custom-resources">user-defined Resources</a></li>
+<li>dawson's support Resources, in a separate stack - <em>one for each Region that has at least one stage</em></li>
 </ul>
 <p><em>Reference architecture:</em><br>
 <img src="https://rawgit.com/dawson-org/dawson-cli/images/architecture.png" alt=""></p>
@@ -492,6 +523,7 @@ Unless you know what you're doing, setting this option to <code>true</code> in p
       &quot;default&quot;: &quot;Z187MLBSXQKXXX&quot;
     },
     &quot;root&quot;: &quot;api&quot;,
+    &quot;assetsDir&quot;: &quot;assets&quot;,
     &quot;cloudfront&quot;: {
       &quot;default&quot;: true,
       &quot;production&quot;: &quot;myapp.com&quot;,
@@ -526,11 +558,19 @@ Paths should begin with <code>*</code> unless they're absolute (see <a href="htt
 When forwarding requests to the S3 Assets Bucket, the <code>/assets</code> prefix will not be stripped: you need to have an <code>assets</code> folder at top level in your bucket. At the opposite, when forwarding requests to your API, the <code>/prod</code> prefix will be stripped (because it references API Gateway's Stage).<br>
 On startup, the development server prints these mappings so you can check that you've properly configured everything.</li>
 </ul>
-<h2 id="-12"><code>route53</code></h2>
+<h2 id="-12"><code>assetsDir</code></h2>
+<p><strong>Required</strong>: no | <strong>Type</strong>: <code>string|boolean</code> | <strong>Default</strong>: <code>&quot;assets&quot;</code><br>
+<strong>Use for</strong>: Specifying the path to the folder containing public assets (if any)</p>
+<p>Specify a path, relative to the package.json directory, in which public assets (css, img, js, etc.) are located. Dawson recursively uploads file and folders (except hidden files) to the <code>BucketAssets</code>.<br>
+By default, if this property is not specified, dawson expects to find public assets in the <code>__dirname + /assets/</code> folder.<br>
+Another common value for this property might be something like <code>frontend/dist/</code> if you have a build process in place.<br>
+The folder must exist when dawson start.<br>
+Specify <code>false</code> to skip deploying assets.</p>
+<h2 id="-13"><code>route53</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>Object&lt;string:string|boolean&gt;</code> | <strong>Default</strong>: <code>{}</code><br>
 <strong>Use for</strong>: Specifying Route53 Zone IDs to link to your CloudFront Distributions</p>
 <p>An object which maps app stages to Route53 Hosted Zone IDs. If an Hosted Zone ID is specified, the DNS Record corresponding to the CloudFront Alias (CNAME) is created (as an <code>A ALIAS</code> to the CloudFront distribution). Needless to say, he Route53 Hosted Zone must be an Alias' ancestor or the deployment will fail.</p>
-<h2 id="-13"><code>cloudfront</code></h2>
+<h2 id="-14"><code>cloudfront</code></h2>
 <p><strong>Required</strong>: no | <strong>Type</strong>: <code>Object&lt;string:string|boolean&gt;</code> | <strong>Default</strong>: <code>{}</code><br>
 <strong>Use for</strong>: Specifying wether to deploy a CloudFront distribution in front of your API (<em>recommended</em>) or not.</p>
 <p>An Object which maps app stages to optional domain names.<br>
