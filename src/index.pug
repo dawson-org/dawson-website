@@ -15,20 +15,23 @@ block body
           .btn
         .body
           pre
-            .comment # installing dawson globally
+            .comment # write your code
             .prompt
               | $&nbsp;
-              span.command npm install -g dawson
-            .comment # loading your AWS credentials
-            .prompt
-              | $&nbsp;
-              span.command source .env
-            .comment # deploy your app
+              span.command vim api.js
+
+            .comment(style='margin-top: 15px;') # deploy your app
             .prompt
               | $&nbsp;
               span.command dawson deploy
-              //- span.pulse _
-      
+            .comment(style='margin-top: 15px; padding-left: 30px; color: #0b0').
+              URL: https://d123456789abcd.cloudfront.net
+
+            .comment(style='margin-top: 15px;') # run your app locally
+            .prompt
+              | $&nbsp;
+              span.command dawson dev
+            //- span.pulse _
       .spacer-20
       a.pure-button.pure-button-negative(href='docs.html')
         span View full documentation
@@ -42,7 +45,8 @@ block body
         .intro
           :markdown-it(breaks=true linkify=true)
 
-            dawson is a [serverless](https://auth0.com/blog/what-is-serverless/) web framework for Node.js on AWS. dawson uses [AWS CloudFormation](https://aws.amazon.com/cloudformation/), [Amazon CloudFront](https://aws.amazon.com/cloudfront/), [Amazon API Gateway](https://aws.amazon.com/apigateway/) and  [AWS Lambda](https://aws.amazon.com/lambda/) to deploy the backend code and to manage the infrastructure for you. 
+            dawson is a [serverless](https://auth0.com/blog/what-is-serverless/) web framework for Node.js on AWS.
+            dawson uses [AWS CloudFormation](https://aws.amazon.com/cloudformation/), [Amazon CloudFront](https://aws.amazon.com/cloudfront/), [Amazon API Gateway](https://aws.amazon.com/apigateway/) and  [AWS Lambda](https://aws.amazon.com/lambda/) to deploy the backend code and to manage the infrastructure for you.
 
         .spacer-50
 
@@ -66,27 +70,31 @@ block body
           .spacer-50
 
           :markdown-it(breaks=true linkify=true html=true)
-            The main goal of dawson is to be a zero-configuration yet fully extensible *[backend]* web framework for building web apps on AWS. You should be able to start using dawson without creating any configuration file and with only a basic knowledge of Amazon Web Services.
+            The main goal of dawson is to be a zero-configuration yet fully extensible framework for building Node.js serverless web apps on AWS. You should be able to start using dawson without creating any configuration file and with only a basic knowledge of Amazon Web Services.
 
             <div class="spacer-10"></div>
 
             ```js
             // api.js
-            export function greet (event) {
-                const name = event.params.path.name
-                return `Hello ${name}, you look awesome!`
+
+            import pug from 'pug';
+            const template = pug.compileFile('template.pug');
+
+            export async function greet (event) {
+              const name = event.params.path.name
+              const age = await getUserAge(name);
+              return template({ name, age });
             }
             greet.api = {
-                path: 'greet/{name}'
+              path: 'greet/{name}'
             }
             ```
-            ```bash
-            $ # we strongly recommend to read this guide
-            $ #     before getting your hands dirty     
-            $ npm install -g dawson
-            $ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
-            $ dawson deploy
 
+            ```bash
+            $ npm install -g dawson
+            $ export AWS_REGION=... AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=...
+            $ dawson deploy
+            ```
 
           .spacer-10
           .text-center
