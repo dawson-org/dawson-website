@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>dawson | a serverless framework for Node.js on AWS</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta name="keywords" content=""><meta name="author" content=""><meta name="description" content=""><meta property="og:title" content=""><meta property="og:url" content=""><meta property="og:description" content=""><meta property="og:image" content=""><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="/css/style.min.css?v=1488295885621"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/javascript.min.js"></script><script>hljs.initHighlightingOnLoad();
+<!DOCTYPE html><html><head><title>dawson | a serverless framework for Node.js on AWS</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"><meta name="keywords" content=""><meta name="author" content=""><meta name="description" content=""><meta property="og:title" content=""><meta property="og:url" content=""><meta property="og:description" content=""><meta property="og:image" content=""><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/pure-min.css"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="/css/style.min.css?v=1488457254168"><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/tomorrow.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/javascript.min.js"></script><script>hljs.initHighlightingOnLoad();
 </script><meta name="msapplication-TileColor" content="#584843"><meta name="msapplication-TileImage" content="img/mstile-icon.png"><link rel="apple-touch-icon" href="img/apple-touch-icon.png"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="icon" href="/img/favicon.png" type="image/png"></head><body><nav><div class="spacer-10"></div><div class="container"><div class="padding"><div class="pure-g"><div class="pure-u-1 pure-u-sm-2-3"><div class="text-left"><a href="/"><img src="/img/dawson-logo@2x.png" alt="dawson | a serverless framework for Node.js on AWS"></a></div></div><div class="pure-u-1 pure-u-sm-1-3 hide-mobile"><div class="text-right"><a href="index.html"><span>back to d<span style='font-size: 0.7em'>&Lambda;</span>wson website</span></a></div></div></div></div></div><div class="spacer-10"></div></nav><div id="readme"><div class="container"><div class="padding"><h1 id="dawson-documentation">dawson documentation</h1>
 <p>dawson is a <a href="https://auth0.com/blog/what-is-serverless/">serverless</a> web framework for Node.js on AWS. dawson uses <a href="https://aws.amazon.com/cloudformation/">AWS CloudFormation</a>, <a href="https://aws.amazon.com/cloudfront/">Amazon CloudFront</a>, <a href="https://aws.amazon.com/apigateway/">Amazon API Gateway</a> and  <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> to deploy the backend code and to manage the infrastructure for you.</p>
 <h3 id="is-dawson-for-me">Is dawson for me?</h3>
@@ -22,6 +22,7 @@ $ npm install -g dawson
 $ export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_REGION=...
 $ dawson deploy
 </code></pre>
+<p>Check out the <a href="https://github.com/dawson-org/dawson-examples">examples repository</a>!</p>
 <h1 id="table-of-contents">Table of Contents</h1>
 <!-- toc -->
 <ul>
@@ -106,6 +107,9 @@ $ dawson deploy
 <blockquote>
 <p>Since we use the <code>aws-sdk-js</code>, any other method of setting credentials should work and can be used (e.g. EC2 Instance Role).</p>
 </blockquote>
+<blockquote>
+<p>The CloudFormation Stack will contain IAM Roles, so dawson will request a stack creation using CAPABILITY_IAM; since you may need to add named IAM Resources, we have included CAPABILITY_NAMED_IAM by default. IAM is managed only via CloudFront and we're not creating any other resource outside of the Template.</p>
+</blockquote>
 <h2 id="02-obtaining-aws-credentials-long-version-for-aws-beginners">0.2 obtaining AWS Credentials: long version for AWS beginners</h2>
 <ol>
 <li>create an Amazon Web Services Account or login into an existing account</li>
@@ -133,6 +137,12 @@ export AWS_REGION=...
 <h2 id="11-installing">1.1 installing</h2>
 <p>you should install dawson using npm or yarn: <code>npm install -g dawson</code> or <code>yarn global add dawson</code>. You should then be able to run a <code>dawson --help</code> command.<br>
 You're kindly invited to keep dawson up-to-date, starting with <code>v1.0.0</code> we will never introduce backwards-incompatible changes between non-major versions, following strict <a href="http://semver.org">SemVer</a>.</p>
+<p>There are some system prerequisites; the following binaries must be available:</p>
+<ul>
+<li><code>npm</code></li>
+<li><code>zip</code></li>
+<li><code>docker</code> (for running the development server)</li>
+</ul>
 <h2 id="12-packagejson-and-entry-point">1.2 package.json and entry point</h2>
 <p>dawson reads the contents of a file named <code>api.js</code> in your current working directory. You should write (or just <code>export</code>) your functions in this <code>api.js</code> file.<br>
 dawson uses the <code>name</code> field in the <code>package.json</code> file in your current working directory to determine the app name, which will be used as a prefix for many AWS Resources that are created automatically. Make sure you have correctly set the <code>name</code> field it's <em>not possible to change</em> it later.</p>
